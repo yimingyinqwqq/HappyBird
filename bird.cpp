@@ -14,7 +14,7 @@ void Bird::initTexture() {
 void Bird::initSprite() {
     this->sprite.setTexture(this->texture);
     //Adjust the size
-    this->sprite.setScale(5.f, 5.f);
+    this->sprite.setScale(4.f, 4.f);
 
     this->sprite.setPosition(600.f - this->sprite.getGlobalBounds().width / 2.f, 
                              750.f - this->sprite.getGlobalBounds().height / 2.f);

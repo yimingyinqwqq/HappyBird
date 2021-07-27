@@ -1,8 +1,5 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
-#include <SFML/Audio.hpp>
-#include <SFML/System.hpp>
 #include <SFML/Window.hpp>
 #include <SFML/Network.hpp>
 
@@ -76,15 +73,24 @@ class Game {
     sf::Vector2i mousePosWindow;
     sf::Vector2f mousePosView;
 
-    std::vector<Pipe*> pipes;
+    std::vector<std::pair<Pipe*, Pipe*>> pipes;
 
     //Resourses
 
     //Game logic
     bool endGame;
-    unsigned points;
+
     float pipeSpawnTimer;
     float pipeSpawnTimerMax;
+
+    sf::Clock clock;
+    sf::Time time;
+
+    unsigned points;
     unsigned maxPipes;
+
     bool mouseHeld;
+
+    //Speed of the game
+    float movingSpeed;
 };

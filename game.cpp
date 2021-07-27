@@ -17,8 +17,10 @@ Game::~Game() {
 
     //FIXME: check!
     for (auto & pi : pipes) {
-        delete pi;
-        pi = nullptr;
+        delete pi.first;
+        delete pi.second;
+        pi.first = nullptr;
+        pi.second = nullptr;
     }
 }
 
@@ -56,32 +58,15 @@ void Game::updateMousePos() {
 }
 
 void Game::updateCharacter() {
-
+    //Changing frame of the bird
 }
 
 void Game::spawnPipes() {
-    float randomYPosUpOrDown = 0.f;
-    if (std::rand() % 2 == 0) {
-        randomYPosUpOrDown = 950.f;
-    }
-
-    //Construct a new pipe
-    this->pipe = new Pipe(0.f, 0.f, 1.f);
-    //SetPostion of the pipe at the rightmost of the screen
-    this->pipe->setPosition(
-        static_cast<float>(this->window->getSize().x),
-        randomYPosUpOrDown + static_cast<float>(std::rand() % 100)
-    );
-    /*
-    this->pipe->setPosition(
-        static_cast<float>(std::rand() % static_cast<int>(this->window->getSize().x - this->pipe->getSize().width)),
-        randomYPosUpOrDown + static_cast<float>(std::rand() % 100)
-    );
-    */
-    this->pipes.push_back(this->pipe);
-    
-    //Remove pipes if they reach the end of screen
-    //TODO:
+    //Construct a pair of new pipe
+    Pipe* first = new Pipe(-2.f, 0.f, 2.f * this->movingSpeed);
+    Pipe* second = new Pipe(*first);
+    //Push that into "pipes" vector
+    this->pipes.push_back(std::make_pair(first, second));
 }
 
 void Game::updatePipes() {
@@ -101,15 +86,17 @@ void Game::updatePipes() {
     for (unsigned i = 0; i < this->pipes.size(); ++i) {
         //bool deleted = false;
 
-        this->pipes[i]->update();
+        this->pipes[i].first->update();
+        this->pipes[i].second->update();
         //Remove the pipe if it goes beyond the left of the screen
-        if (this->pipes[i]->getPosition().x < -99.f) {
+        if (this->pipes[i].first->getPosition().x < -1 * this->pipes[i].first->getGlobalBounds().width) {
+            delete this->pipes[i].first;
+            delete this->pipes[i].second;
             this->pipes.erase(this->pipes.begin() + i);
         }
         //Add points if the bird jumps through the pipe
-        if (this->pipes[i]->getPosition().x == 599.f) {
+        if (this->pipes[i].first->getPosition().x == static_cast<float>(this->window->getSize().x) / 2.f) {
             ++points;
-            //std::cout << this->points << std::endl;
         }
     }
 
@@ -121,7 +108,8 @@ void Game::updatePipes() {
             //TODO:
             //bool donext;
 
-            if (this->pipes[0]->getSize().contains(this->mousePosView))
+            if (this->pipes[0].first->getGlobalBounds().contains(this->mousePosView) ||
+                this->pipes[0].second->getGlobalBounds().contains(this->mousePosView))
             {
                 //DO THINGS
             }
@@ -139,6 +127,9 @@ void Game::updateText() {
 }
 
 void Game::update() {
+    //Update the time first
+    //this->time = clock.getElapsedTime();
+
     this->pollEvents();
     
 
@@ -162,7 +153,8 @@ void Game::update() {
 
 void Game::renderPipes() {
     for (auto & pi : this->pipes) {
-        pi->render(*this->window);
+        pi.first->render(*this->window);
+        pi.second->render(*this->window);
     }
 
 }
@@ -197,12 +189,18 @@ void Game::initVariables() {
     this->window = nullptr;
 
     this->points = 0;
+
     this->pipeSpawnTimerMax = 30.f;
     this->pipeSpawnTimer = this->pipeSpawnTimerMax;
+
+    //this->clock.restart();
+    //this->time = clock.getElapsedTime();
     
     this->maxPipes = 5;
     this->mouseHeld = false;
     this->endGame = false;
+
+    this->movingSpeed = 1.f;
 }
 
 void Game::initWindow() {
@@ -216,6 +214,5 @@ void Game::initCharacter() {
 }
 
 void Game::initPipes() {
-    this->pipe = new Pipe(0.f, 0.f, 1.f);
-    this->pipes.push_back(this->pipe);
+    this->spawnPipes();
 }

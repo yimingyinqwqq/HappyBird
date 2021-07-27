@@ -3,44 +3,73 @@
 Pipe::Pipe() {}
 
 Pipe::Pipe(float dirX, float dirY, float movement_speed) :
-direction(sf::Vector2f(dirX, dirY)) , movementSpeed(movement_speed)
+    direction(sf::Vector2f(dirX, dirY)) , movementSpeed(movement_speed), UpOrDownward(false)
 {
     this->initTexture();
     this->initSprite();
 }
 
-Pipe::~Pipe() {
+Pipe::Pipe(const Pipe& pipe) {
+    this->direction = pipe.direction;
+    this->movementSpeed = pipe.movementSpeed;
+    this->positionOfFirstPipe = pipe.positionOfFirstPipe;
+    this->heightOfFirstPipe = pipe.heightOfFirstPipe;
+    this->UpOrDownward = true;
 
+    this->initTexture();
+    this->initSprite();
+}
+
+Pipe::~Pipe() {
+    delete this->texture;
 }
 
 void Pipe::initTexture() {
     this->texture = new sf::Texture();
-    this->texture->loadFromFile("textures/green_upward_pipe.png");
+
+    //Pick the right texture
+    if (UpOrDownward) {
+        //Upward
+        this->texture->loadFromFile("textures/green_upward_pipe.png");
+    } else {
+        //Downward
+        this->texture->loadFromFile("textures/green_downward_pipe.png");
+    }
 }
 
 void Pipe::initSprite() {
     this->sprite.setTexture(*this->texture);
     
     //Adjust the size
-    this->sprite.setScale(1.f, 1.f);
+    this->sprite.setScale(3.f, 3.f);
 
-    this->sprite.setPosition(direction.x - this->sprite.getGlobalBounds().width / 2.f, 
-                             direction.y - this->sprite.getGlobalBounds().height / 2.f);
+    if (!UpOrDownward) {
+        //TODO: later it should be set as random numbers with different probabilities
+        //Set the pipe downward
+        this->sprite.setPosition(1200.f, -1 * static_cast<float>(std::rand() % 700));
+        positionOfFirstPipe = this->sprite.getPosition().y;
+        heightOfFirstPipe = this->sprite.getGlobalBounds().height;
+    } else {
+        //Set the pipe upward
+        this->sprite.setPosition(1200.f, 
+            positionOfFirstPipe + heightOfFirstPipe + disBetTwoPipes
+        );
+        //this->sprite.setPosition(1200.f, 
+        //    1500.f - this->sprite.getGlobalBounds().height + static_cast<float>(std::rand() % 800));
+    }
 }
 
-void Pipe::move(const float dirX, const float dirY) {
-    this->sprite.move(dirX, dirY);
-}
-
-const sf::Vector2f& Pipe::getPosition() {
+const sf::Vector2f& Pipe::getPosition() const {
     return this->sprite.getPosition();
 }
 
+/*
 void Pipe::setPosition(float PosX, float PosY) {
     this->sprite.setPosition(PosX, PosY);
 }
+*/
 
-const sf::FloatRect Pipe::getSize() {
+const sf::FloatRect Pipe::getGlobalBounds() const {
     return this->sprite.getGlobalBounds();
 }
 
