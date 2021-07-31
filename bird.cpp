@@ -8,7 +8,16 @@ Bird::Bird() : isAlive_(true)
 
 //Private functions
 void Bird::initTexture() {
-    this->texture.loadFromFile("textures/blue_bird3.png");
+    //Randomly initialize a texture
+    int random = std::rand() % 3;
+
+    if (random == 0) {
+        this->texture.loadFromFile("textures/blue_bird1.png");
+    } else if (random == 1) {
+        this->texture.loadFromFile("textures/red_bird1.png");
+    } else {
+        this->texture.loadFromFile("textures/yellow_bird1.png");
+    }
 }
 
 void Bird::initSprite() {
